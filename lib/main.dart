@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scan_quest_app/screens/inventory_screen.dart';
 import 'package:scan_quest_app/screens/loading_screen.dart';
+import 'package:scan_quest_app/screens/main_screen.dart';
+import 'package:scan_quest_app/utilities/constants.dart';
 
 void main() {
   runApp(const MainApp());
@@ -12,10 +13,11 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: InventoryScreen.id,
+      theme: defaultThemeData,
+      initialRoute: MainScreen.id,
       routes: {
         LoadingScreen.id: (context) => const LoadingScreen(),
-        InventoryScreen.id: (context) => const InventoryScreen(),
+        MainScreen.id: (context) => const MainScreen(),
       },
     );
   }

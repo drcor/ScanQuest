@@ -1,0 +1,4 @@
+- [ ] Adicionar suporte de NFC para IOS
+    - Add Near Field Communication Tag Reader Session Formats Entitlements to your entitlements.
+    - Add NFCReaderUsageDescription to your `Info.plist`.
+    - Add `com.apple.developer.nfc.readersession.felica.systemcodes` and `com.apple.developer.nfc.readersession.iso7816.select-identifiers` to your `Info.plist` as needed.

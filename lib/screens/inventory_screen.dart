@@ -1,51 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:scan_quest_app/database/items_connection_table.dart';
+import 'package:scan_quest_app/models/items_connection_model.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
-  static const String id = 'inventory_screen';
 
   @override
   State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
+  static List<TreasureItem> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    setup();
+  }
+
+  void setup() async {
+    List<TreasureItem>? tempItems =
+        await TreasureItemsDatabase.instance.readAll();
+
+    if (tempItems != null) {
+      setState(() {
+        items = tempItems;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: const Text("ScanQuest"),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+    return Column(
+      children: [
+        Text(
+          "My Items",
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
-        body: const Center(
-          child: Text("Inventory"),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: 'Chat',
+        Expanded(
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 150,
+              // childAspectRatio: 3 / 2,
+              crossAxisSpacing: 4,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.qr_code_scanner),
-              label: 'Scan',
-            ),
-          ],
-        ),
-      ),
+            itemCount: items.length,
+            itemBuilder: (BuildContext ctx, index) {
+              return TextButton(
+                onPressed: () {},
+                child: Image.asset(
+                  'images/${items[index].image}.png',
+                  fit: BoxFit.fitHeight,
+                ),
+              );
+            },
+          ),
+        )
+      ],
     );
   }
 }
