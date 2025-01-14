@@ -39,9 +39,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return Consumer<TreasureItemsProvider>(builder: (context, provider, child) {
       return Column(
         children: [
+          const SizedBox(height: 10),
           Text(
             "My Items",
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           Expanded(
             child: provider.items.isEmpty
@@ -54,8 +55,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 : GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 150,
-                      childAspectRatio: 3 / 2,
+                      maxCrossAxisExtent: 200,
+                      // childAspectRatio: 3 / 2,
                       crossAxisSpacing: 4,
                     ),
                     itemCount: provider.items.length,
@@ -86,7 +87,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         child: Image.asset(
                           'images/${provider.items[index].image}.png',
                           fit: BoxFit.contain,
-                          height: 200,
+                          height: 150,
                           filterQuality: FilterQuality.none,
                         ),
                       );
