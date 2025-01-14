@@ -6,7 +6,9 @@ class Helper {
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
     // set up the AlertDialog

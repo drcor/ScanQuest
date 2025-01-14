@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:path/path.dart';
-import 'package:scan_quest_app/models/items_connection_model.dart';
+import 'package:scan_quest_app/models/treasure_items_connection_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class TreasureItemsDatabase {
@@ -34,108 +34,37 @@ class TreasureItemsDatabase {
       )
     ''');
 
-    List<TreasureItem> data = [
-      TreasureItem(
-        nfcId: '0',
-        name: 'Arrow',
-        description: 'This is sharp, be careful.',
-        image: 'arrow',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '1',
-        name: 'Basic Sword',
-        description: 'Just a basic sword...',
-        image: 'basic_sword',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '2',
-        name: 'Berry',
-        description: 'To eat if you are hungry.',
-        image: 'berry',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '3',
-        name: 'Cat',
-        description: 'Meoww...',
-        image: 'cat',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '4',
-        name: 'Chameleon',
-        description: 'I dare you to find me...',
-        image: 'chameleon',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '5',
-        name: 'Chicken Leg',
-        description: 'Hmmm, delicious...',
-        image: 'chicken_leg',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '6',
-        name: 'Falcon',
-        description: 'Scanning the skies.',
-        image: 'falcon',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '7',
-        name: 'Fire Arrow',
-        description: 'This is sharp and hot, be careful',
-        image: 'fire_arrow',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '8',
-        name: 'Fox',
-        description: 'Do you have some berries with you?',
-        image: 'fox',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '9',
-        name: 'Goblin',
-        description: 'Where is the gold?',
-        image: 'goblin',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-      TreasureItem(
-        nfcId: '10',
-        name: 'Skeleton',
-        description: 'I can feel all my bones!',
-        image: 'skeleton',
-        collectedOn: DateTime.now(),
-        isFound: false,
-      ),
-    ];
-
-    // Create all the treasure items
-    for (var e in data) {
-      create(e);
-    }
+    await db.execute('''
+      INSERT INTO $tableTreasureItems (
+        ${TreasureItemFields.nfcId},
+        ${TreasureItemFields.name},
+        ${TreasureItemFields.description},
+        ${TreasureItemFields.image},
+        ${TreasureItemFields.collectedOn},
+        ${TreasureItemFields.isFound}
+      ) VALUES 
+      ('0','Arrow','This is sharp, be careful.','arrow', '2025-01-01 00:00:00', 0),
+      ('1','Basic Sword','Just a basic sword...','basic_sword', '2025-01-01 00:00:00', 0),
+      ('2','Berry','To eat if you are hungry.','berry', '2025-01-01 00:00:00', 0),
+      ('3','Cat','Meoww...','cat', '2025-01-01 00:00:00', 0),
+      ('4','Chameleon','I dare you to find me...','chameleon', '2025-01-01 00:00:00', 0),
+      ('5','Chicken Leg','Hmmm, delicious...','chicken_leg', '2025-01-01 00:00:00', 0),
+      ('6','Falcon','Scanning the skies.','falcon', '2025-01-01 00:00:00', 0),
+      ('7','Fire Arrow','This is sharp and hot, be careful','fire_arrow', '2025-01-01 00:00:00', 0),
+      ('8','Fox','What does the fox say?','fox', '2025-01-01 00:00:00', 0),
+      ('9','Goblin','Where is the gold?','goblin', '2025-01-01 00:00:00', 0),
+      ('10','Skeleton','I can feel all my bones!','skeleton', '2025-01-01 00:00:00', 0)
+    ''');
   }
 
   Future<TreasureItem> create(TreasureItem treasureItem) async {
     final db = await instance.database;
-    final id = await db.insert(tableTreasureItems, treasureItem.toJson());
+    // final id = await db.insert(tableTreasureItems, treasureItem.toJson());
 
-    return treasureItem.copy(id: id);
+    return await db.transaction((txn) async {
+      final id = await txn.insert(tableTreasureItems, treasureItem.toJson());
+      return treasureItem.copy(id: id);
+    });
   }
 
   Future<TreasureItem?> read(int id) async {
@@ -187,12 +116,14 @@ class TreasureItemsDatabase {
     }
   }
 
-  Future<List<TreasureItem>?> readAll() async {
+  Future<List<TreasureItem>?> readAllCollected() async {
     final db = await instance.database;
 
     final maps = await db.query(
       tableTreasureItems,
       columns: TreasureItemFields.allValues,
+      where: '${TreasureItemFields.isFound} = ?',
+      whereArgs: [1],
     );
 
     if (maps.isNotEmpty) {
@@ -212,8 +143,8 @@ class TreasureItemsDatabase {
     final id = await db.update(
       tableTreasureItems,
       item.toJson(),
-      where: '${TreasureItemFields.id} = ?',
-      whereArgs: [item.id],
+      where: '${TreasureItemFields.nfcId} = ?',
+      whereArgs: [item.nfcId],
     );
 
     return read(id);

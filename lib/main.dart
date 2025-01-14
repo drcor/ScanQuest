@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:scan_quest_app/provider/treasure_items_provider.dart';
 import 'package:scan_quest_app/screens/loading_screen.dart';
 import 'package:scan_quest_app/screens/main_screen.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TreasureItemsProvider(),
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {

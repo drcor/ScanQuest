@@ -20,38 +20,27 @@ final ThemeData defaultThemeData = ThemeData(
       foregroundColor: WidgetStateProperty.all(Colors.white),
     ),
   ),
-  textTheme: const TextTheme(
-    headlineLarge: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    headlineMedium: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    headlineSmall: TextStyle(fontFamily: "Rowdies"),
-    titleLarge: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    titleMedium: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    titleSmall: TextStyle(fontFamily: "Rowdies"),
-    labelLarge: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    labelMedium: TextStyle(
-      fontFamily: "Rowdies",
-    ),
-    labelSmall: TextStyle(
-      fontFamily: "Rowdies",
-    ),
+  textTheme: TextTheme(
+    headlineLarge: const TextStyle(fontFamily: "Rowdies"),
+    headlineMedium: const TextStyle(fontFamily: "Rowdies"),
+    headlineSmall: const TextStyle(fontFamily: "Rowdies"),
+    titleLarge: const TextStyle(fontFamily: "Rowdies"),
+    titleMedium: const TextStyle(fontFamily: "Rowdies"),
+    titleSmall: const TextStyle(fontFamily: "Rowdies"),
+    labelLarge: const TextStyle(fontFamily: "Rowdies"),
+    labelMedium: const TextStyle(fontFamily: "Rowdies"),
+    labelSmall: const TextStyle(fontFamily: "Rowdies"),
     bodyLarge: TextStyle(
       fontFamily: "SourGummy",
+      fontVariations: [FontVariation('wght', 900.0)],
     ),
-    bodyMedium: TextStyle(
+    bodyMedium: const TextStyle(
       fontFamily: "SourGummy",
+      fontVariations: [FontVariation('wght', 400.0)],
     ),
-    bodySmall: TextStyle(
+    bodySmall: const TextStyle(
       fontFamily: "SourGummy",
+      fontVariations: [FontVariation('wght', 400.0)],
     ),
   ),
 );

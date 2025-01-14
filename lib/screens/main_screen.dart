@@ -15,11 +15,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 1; // To track the selected index
   final PageController _pageController = PageController(initialPage: 1);
-  final List<Widget> _screens = const [
-    ChatScreen(),
-    InventoryScreen(),
-    ScanScreen(),
-  ];
 
   // Function to handle BottomNavigationBar tap
   void _onItemTapped(int index) {
@@ -47,7 +42,11 @@ class _MainScreenState extends State<MainScreen> {
             _selectedIndex = index;
           });
         },
-        children: _screens,
+        children: [
+          ChatScreen(),
+          InventoryScreen(),
+          ScanScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

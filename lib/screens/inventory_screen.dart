@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:scan_quest_app/database/items_connection_table.dart';
-import 'package:scan_quest_app/models/items_connection_model.dart';
+import 'package:provider/provider.dart';
+import 'package:scan_quest_app/provider/treasure_items_provider.dart';
+import 'package:scan_quest_app/screens/treasure_item_screen.dart';
+import 'package:scan_quest_app/utilities/helper.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -10,54 +12,89 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  static List<TreasureItem> items = [];
-
   @override
   void initState() {
     super.initState();
 
-    setup();
+    Future.microtask(() => setup());
+
+    // Avoid NFC pop-up
+    // NfcManager.instance.startSession(
+    //   onDiscovered: (NfcTag tag) async {},
+    // );
   }
 
-  void setup() async {
-    List<TreasureItem>? tempItems =
-        await TreasureItemsDatabase.instance.readAll();
+  @override
+  void dispose() {
+    // NfcManager.instance.stopSession();
+    super.dispose();
+  }
 
-    if (tempItems != null) {
-      setState(() {
-        items = tempItems;
-      });
-    }
+  Future<void> setup() async {
+    Provider.of<TreasureItemsProvider>(context, listen: false).updateItems();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          "My Items",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Expanded(
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 150,
-              // childAspectRatio: 3 / 2,
-              crossAxisSpacing: 4,
-            ),
-            itemCount: items.length,
-            itemBuilder: (BuildContext ctx, index) {
-              return TextButton(
-                onPressed: () {},
-                child: Image.asset(
-                  'images/${items[index].image}.png',
-                  fit: BoxFit.fitHeight,
-                ),
-              );
-            },
+    return Consumer<TreasureItemsProvider>(builder: (context, provider, child) {
+      return Column(
+        children: [
+          Text(
+            "My Items",
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
-        )
-      ],
-    );
+          Expanded(
+            child: provider.items.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('No items in the collection'),
+                    ],
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 150,
+                      childAspectRatio: 3 / 2,
+                      crossAxisSpacing: 4,
+                    ),
+                    itemCount: provider.items.length,
+                    itemBuilder: (BuildContext ctx, index) {
+                      return TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ItemScreen(item: provider.items[index]),
+                            ),
+                          )
+                              .then((value) {
+                            // if the item is traded, update the items
+                            if (value != null && value) {
+                              provider.updateItems();
+                              if (mounted) {
+                                Helper.showAlertDialog(
+                                  ctx,
+                                  'Success',
+                                  'Item traded successfully',
+                                );
+                              }
+                            }
+                          });
+                        },
+                        child: Image.asset(
+                          'images/${provider.items[index].image}.png',
+                          fit: BoxFit.contain,
+                          height: 150,
+                          filterQuality: FilterQuality.none,
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      );
+    });
   }
 }
