@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:scan_quest_app/database/user_table.dart';
+import 'package:scan_quest_app/models/user_model.dart';
 import 'package:scan_quest_app/screens/chat_screen.dart';
 import 'package:scan_quest_app/screens/inventory_screen.dart';
 import 'package:scan_quest_app/screens/scan_screen.dart';
+import 'package:scan_quest_app/screens/user_screen.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
+import 'package:scan_quest_app/utilities/helper.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,8 +19,48 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 1; // To track the selected index
   final PageController _pageController = PageController(initialPage: 1);
+  User? user;
 
-  // Function to handle BottomNavigationBar tap
+  @override
+  void initState() {
+    super.initState();
+    _setup();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _setup() async {
+    // Get the user name from the database
+    user = await UserDatabase.instance.getUser();
+    if (user == null) {
+      if (mounted) {
+        Helper.showAlertDialog(
+          context,
+          'Error',
+          'User not found. Please delete the app storage and restart the app.',
+        );
+      }
+      return;
+    }
+    setState(() {});
+  }
+
+  String _getUserInitials() {
+    if (user == null) {
+      return '';
+    }
+    return user!.name.split(' ').map((e) => e[0]).join().toUpperCase();
+  }
+
+  void callback() async {
+    // user = await UserDatabase.instance.getUser(); // Not needed
+    setState(() {});
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,7 +77,44 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kSecondaryColor,
-        title: const Text("ScanQuest"),
+        title: const Text(
+          "ScanQuest",
+          style: TextStyle(color: kDetailsColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (user == null) {
+                Helper.showAlertDialog(
+                  context,
+                  'Error',
+                  'User not found.\nPlease delete the app storage and restart the app.\nYou will lose all your progress.',
+                );
+                return;
+              }
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserScreen(
+                    user: user!,
+                    callback: callback,
+                  ),
+                ),
+              );
+            },
+            style: ButtonStyle(
+              foregroundColor: WidgetStateProperty.all<Color>(kDetailsColor),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  side: const BorderSide(color: kDetailsColor),
+                ),
+              ),
+            ),
+            child: Text(_getUserInitials()),
+          ),
+        ],
       ),
       body: PageView(
         controller: _pageController,
@@ -53,6 +134,8 @@ class _MainScreenState extends State<MainScreen> {
         onTap: _onItemTapped,
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        selectedItemColor: kPrimaryColor,
+        unselectedItemColor: kSecondaryColor,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: ImageIcon(

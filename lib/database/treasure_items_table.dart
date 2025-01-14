@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:path/path.dart';
-import 'package:scan_quest_app/models/treasure_items_connection_model.dart';
+import 'package:scan_quest_app/models/treasure_items_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class TreasureItemsDatabase {

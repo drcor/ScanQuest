@@ -86,7 +86,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         child: Image.asset(
                           'images/${provider.items[index].image}.png',
                           fit: BoxFit.contain,
-                          height: 150,
+                          height: 200,
                           filterQuality: FilterQuality.none,
                         ),
                       );
