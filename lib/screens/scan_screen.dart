@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:provider/provider.dart';
@@ -57,9 +55,9 @@ class _ScanScreenState extends State<ScanScreen> {
         NdefMessage ndefMessage = ndef.cachedMessage!;
         NdefRecord ndefRecord = ndefMessage.records.first;
 
-        String payload = utf8.decode(ndefRecord.payload);
-
-        payload = payload.replaceAll('\x02\x65\x6E', '');
+        String payload = String.fromCharCodes(
+          ndefRecord.payload.sublist(ndefRecord.payload[0] + 1),
+        );
 
         item = await TreasureItemsDatabase.instance.readByNfcId(payload);
         setState(() {});
