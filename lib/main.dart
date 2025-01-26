@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scan_quest_app/provider/flutter_p2p_connection_provider.dart';
 import 'package:scan_quest_app/provider/treasure_items_provider.dart';
+import 'package:scan_quest_app/provider/user_provider.dart';
 import 'package:scan_quest_app/screens/loading_screen.dart';
 import 'package:scan_quest_app/screens/main_screen.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
 
-void main() {
+void main() async {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => TreasureItemsProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TreasureItemsProvider()),
+        ChangeNotifierProvider(
+            create: (context) => FlutterP2PConnectionProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+      ],
       child: const MainApp(),
     ),
   );

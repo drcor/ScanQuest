@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scan_quest_app/database/user_table.dart';
-import 'package:scan_quest_app/models/user_model.dart';
+import 'package:provider/provider.dart';
+import 'package:scan_quest_app/provider/flutter_p2p_connection_provider.dart';
+import 'package:scan_quest_app/provider/user_provider.dart';
 import 'package:scan_quest_app/screens/chat_screen.dart';
 import 'package:scan_quest_app/screens/inventory_screen.dart';
 import 'package:scan_quest_app/screens/scan_screen.dart';
@@ -19,12 +20,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 1; // To track the selected index
   final PageController _pageController = PageController(initialPage: 1);
-  User? user;
 
   @override
   void initState() {
     super.initState();
-    _setup();
+
+    final flutterP2pConnectionProvider =
+        Provider.of<FlutterP2PConnectionProvider>(context, listen: false);
+    _setup(flutterP2pConnectionProvider);
   }
 
   @override
@@ -33,32 +36,9 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
-  void _setup() async {
-    // Get the user name from the database
-    user = await UserDatabase.instance.getUser();
-    if (user == null) {
-      if (mounted) {
-        Helper.showAlertDialog(
-          context,
-          'Error',
-          'User not found. Please delete the app storage and restart the app.',
-        );
-      }
-      return;
-    }
-    setState(() {});
-  }
-
-  String _getUserInitials() {
-    if (user == null) {
-      return '';
-    }
-    return user!.name.split(' ').map((e) => e[0]).join().toUpperCase();
-  }
-
-  void callback() async {
-    // user = await UserDatabase.instance.getUser(); // Not needed
-    setState(() {});
+  void _setup(FlutterP2PConnectionProvider flutterP2pConnectionProvider) async {
+    Provider.of<UserProvider>(context, listen: false).setup();
+    await flutterP2pConnectionProvider.checkPermissions();
   }
 
   void _onItemTapped(int index) {
@@ -74,6 +54,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kSecondaryColor,
@@ -84,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              if (user == null) {
+              if (userProvider.user == null) {
                 Helper.showAlertDialog(
                   context,
                   'Error',
@@ -96,10 +78,7 @@ class _MainScreenState extends State<MainScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UserScreen(
-                    user: user!,
-                    callback: callback,
-                  ),
+                  builder: (context) => UserScreen(),
                 ),
               );
             },
@@ -112,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
             ),
-            child: Text(_getUserInitials()),
+            child: Text(userProvider.getUserInitials()),
           ),
         ],
       ),

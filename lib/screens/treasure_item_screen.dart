@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nfc_manager/nfc_manager.dart';
-import 'package:scan_quest_app/database/treasure_items_table.dart';
+import 'package:provider/provider.dart';
 import 'package:scan_quest_app/models/treasure_items_model.dart';
+import 'package:scan_quest_app/provider/flutter_p2p_connection_provider.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
-import 'package:scan_quest_app/utilities/helper.dart';
 
 class ItemScreen extends StatefulWidget {
   const ItemScreen({
@@ -32,7 +31,19 @@ class _ItemScreenState extends State<ItemScreen> {
     });
   }
 
-  void _ndefWrite() {
+  void _tradeItem() async {
+    final flutterP2pConnectionPlugin =
+        Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
+            .flutterP2pConnectionPlugin;
+
+    _isWriting();
+
+    flutterP2pConnectionPlugin
+        .sendStringToSocket("\x00\x01${widget.item.nfcId}");
+
+    _isNotWriting();
+
+    /*
     if (isWriting) {
       NfcManager.instance.stopSession();
       _isNotWriting();
@@ -75,10 +86,21 @@ class _ItemScreenState extends State<ItemScreen> {
         Navigator.of(context).pop(true);
       }
     });
+    */
   }
 
   @override
   Widget build(BuildContext context) {
+    // update the items list
+    final flutterP2pConnectionPlugin =
+        Provider.of<FlutterP2PConnectionProvider>(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (flutterP2pConnectionPlugin.isItemSent) {
+        flutterP2pConnectionPlugin.isItemSent = false;
+        Navigator.of(context).pop(true);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.item.name),
@@ -160,7 +182,7 @@ class _ItemScreenState extends State<ItemScreen> {
             ),
             SizedBox(height: 20),
             FilledButton(
-              onPressed: _ndefWrite,
+              onPressed: _tradeItem,
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(
                   isWriting ? kSecondaryColor : kPrimaryColor,

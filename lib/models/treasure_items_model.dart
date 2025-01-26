@@ -7,6 +7,7 @@ mixin TreasureItemFields {
     name,
     description,
     image,
+    experience,
     collectedOn,
     isFound,
   ];
@@ -15,6 +16,7 @@ mixin TreasureItemFields {
   static const String name = 'name';
   static const String description = 'description';
   static const String image = 'image';
+  static const String experience = 'experience';
   static const String collectedOn = 'collected_on';
   static const String isFound = 'is_found';
 }
@@ -25,6 +27,7 @@ class TreasureItem {
   String name;
   String? description;
   String image;
+  int experience;
   DateTime collectedOn;
   bool isFound;
 
@@ -34,6 +37,7 @@ class TreasureItem {
     required this.name,
     this.description,
     required this.image,
+    required this.experience,
     required this.collectedOn,
     required this.isFound,
   });
@@ -45,6 +49,7 @@ class TreasureItem {
       name: json[TreasureItemFields.name] as String,
       description: json[TreasureItemFields.description] as String?,
       image: json[TreasureItemFields.image] as String,
+      experience: json[TreasureItemFields.experience] as int,
       collectedOn:
           DateTime.parse(json[TreasureItemFields.collectedOn] as String),
       isFound: json[TreasureItemFields.isFound] == 1 ? true : false,
@@ -58,6 +63,7 @@ class TreasureItem {
       TreasureItemFields.name: name,
       TreasureItemFields.description: description,
       TreasureItemFields.image: image,
+      TreasureItemFields.experience: experience,
       TreasureItemFields.collectedOn: collectedOn.toIso8601String(),
       TreasureItemFields.isFound: isFound ? 1 : 0, // Fix for SQLite
     };
@@ -69,6 +75,7 @@ class TreasureItem {
     String? name,
     String? description,
     String? image,
+    int? experience,
     DateTime? collectedOn,
     bool? isFound,
   }) =>
@@ -78,6 +85,7 @@ class TreasureItem {
         name: name ?? this.name,
         description: description ?? this.description,
         image: image ?? this.image,
+        experience: experience ?? this.experience,
         collectedOn: collectedOn ?? this.collectedOn,
         isFound: isFound ?? this.isFound,
       );

@@ -29,6 +29,7 @@ class TreasureItemsDatabase {
         ${TreasureItemFields.name} TEXT NOT NULL,         -- Name of the item
         ${TreasureItemFields.description} TEXT,           -- Description of the item
         ${TreasureItemFields.image} TEXT NOT NULL,        -- Image path for the item
+        ${TreasureItemFields.experience} INTEGER NOT NULL,-- Experience points gained when collecting the item
         ${TreasureItemFields.collectedOn} DATETIME NULL,  -- Date of collection of the item
         ${TreasureItemFields.isFound} INTEGER DEFAULT 0   -- Whether the item has been found (0 = No, 1 = Yes)
       )
@@ -40,20 +41,21 @@ class TreasureItemsDatabase {
         ${TreasureItemFields.name},
         ${TreasureItemFields.description},
         ${TreasureItemFields.image},
+        ${TreasureItemFields.experience},
         ${TreasureItemFields.collectedOn},
         ${TreasureItemFields.isFound}
       ) VALUES 
-      ('0','Arrow','This is sharp, be careful.','arrow', '2025-01-01 00:00:00', 0),
-      ('1','Basic Sword','Just a basic sword...','basic_sword', '2025-01-01 00:00:00', 0),
-      ('2','Berry','To eat if you are hungry.','berry', '2025-01-01 00:00:00', 0),
-      ('3','Cat','Meoww...','cat', '2025-01-01 00:00:00', 0),
-      ('4','Chameleon','I dare you to find me...','chameleon', '2025-01-01 00:00:00', 0),
-      ('5','Chicken Leg','Hmmm, delicious...','chicken_leg', '2025-01-01 00:00:00', 0),
-      ('6','Falcon','Scanning the skies.','falcon', '2025-01-01 00:00:00', 0),
-      ('7','Fire Arrow','This is sharp and hot, be careful','fire_arrow', '2025-01-01 00:00:00', 0),
-      ('8','Fox','What does the fox say?','fox', '2025-01-01 00:00:00', 0),
-      ('9','Goblin','Where is the gold?','goblin', '2025-01-01 00:00:00', 0),
-      ('10','Skeleton','I can feel all my bones!','skeleton', '2025-01-01 00:00:00', 0)
+      ('0','Arrow','This is sharp, be careful.','arrow',3,'2025-01-01 00:00:00', 0),
+      ('1','Basic Sword','Just a basic sword...','basic_sword',2,'2025-01-01 00:00:00', 0),
+      ('2','Berry','To eat if you are hungry.','berry',4,'2025-01-01 00:00:00', 0),
+      ('3','Cat','Meoww...','cat',7,'2025-01-01 00:00:00', 0),
+      ('4','Chameleon','I dare you to find me...','chameleon',12,'2025-01-01 00:00:00', 0),
+      ('5','Chicken Leg','Hmmm, delicious...','chicken_leg',3,'2025-01-01 00:00:00', 0),
+      ('6','Falcon','Scanning the skies.','falcon',5,'2025-01-01 00:00:00', 0),
+      ('7','Fire Arrow','This is sharp and hot, be careful','fire_arrow',6,'2025-01-01 00:00:00', 0),
+      ('8','Fox','What does the fox say?','fox',10,'2025-01-01 00:00:00', 0),
+      ('9','Goblin','Where is the gold?','goblin',15,'2025-01-01 00:00:00', 0),
+      ('10','Skeleton','I can feel all my bones!','skeleton',8,'2025-01-01 00:00:00', 0)
     ''');
   }
 

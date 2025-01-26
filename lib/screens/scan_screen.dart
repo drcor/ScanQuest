@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:scan_quest_app/database/treasure_items_table.dart';
 import 'package:scan_quest_app/models/treasure_items_model.dart';
 import 'package:scan_quest_app/provider/treasure_items_provider.dart';
+import 'package:scan_quest_app/provider/user_provider.dart';
 import 'package:scan_quest_app/utilities/helper.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   TreasureItem? item;
+  bool isNFCAvailable = false;
 
   @override
   void initState() {
@@ -24,7 +26,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   void dispose() {
-    NfcManager.instance.stopSession();
+    if (isNFCAvailable) NfcManager.instance.stopSession();
     super.dispose();
   }
 
@@ -37,6 +39,10 @@ class _ScanScreenState extends State<ScanScreen> {
         }
         return;
       }
+      setState(() {
+        isNFCAvailable = true;
+      });
+
       // Start Session
       NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
         Ndef? ndef = Ndef.from(tag);
@@ -70,6 +76,10 @@ class _ScanScreenState extends State<ScanScreen> {
               await TreasureItemsDatabase.instance.readByNfcId(payload);
 
           if (mounted) {
+            // Add experience to the user
+            Provider.of<UserProvider>(context, listen: false)
+                .addExperience(item!.experience);
+
             Helper.showAlertDialog(
               context,
               'New item discovered',

@@ -5,7 +5,9 @@ import 'package:scan_quest_app/screens/treasure_item_screen.dart';
 import 'package:scan_quest_app/utilities/helper.dart';
 
 class InventoryScreen extends StatefulWidget {
-  const InventoryScreen({super.key});
+  const InventoryScreen({
+    super.key,
+  });
 
   @override
   State<InventoryScreen> createState() => _InventoryScreenState();
@@ -66,8 +68,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           Navigator.of(ctx)
                               .push(
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ItemScreen(item: provider.items[index]),
+                              builder: (context) => ItemScreen(
+                                item: provider.items[index],
+                              ),
                             ),
                           )
                               .then((value) {

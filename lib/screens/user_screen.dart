@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:scan_quest_app/database/user_table.dart';
-import 'package:scan_quest_app/models/user_model.dart';
+import 'package:provider/provider.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
+import 'package:scan_quest_app/provider/user_provider.dart';
 
 class UserScreen extends StatefulWidget {
-  const UserScreen({
-    super.key,
-    required this.user,
-    required this.callback,
-  });
+  const UserScreen({super.key});
 
   static const String id = 'user_screen';
-
-  final User user;
-  final VoidCallback callback;
 
   @override
   State<UserScreen> createState() => _UserScreenState();
@@ -27,9 +20,11 @@ class _UserScreenState extends State<UserScreen> {
   void initState() {
     super.initState();
 
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     _usernameController.addListener(_onTextChanged);
     setState(() {
-      _usernameController.text = widget.user.name;
+      _usernameController.text = userProvider.user?.name ?? '';
     });
   }
 
@@ -46,8 +41,10 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   void _onTextChanged() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     if (_usernameController.text.isEmpty ||
-        _usernameController.text == widget.user.name) {
+        _usernameController.text == userProvider.user?.name) {
       _cannotSave();
       return;
     }
@@ -55,15 +52,15 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   void _saveChanges() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     if (_usernameController.text.isEmpty ||
-        _usernameController.text == widget.user.name) {
+        _usernameController.text == userProvider.user?.name) {
       return;
     }
 
-    widget.user.name = _usernameController.text;
-    widget.user.lastModification = DateTime.now();
-    await UserDatabase.instance.update(widget.user);
-    widget.callback();
+    await userProvider.updateName(_usernameController.text);
+    // widget.callbackOnSaveChanges();
 
     _cannotSave();
   }
@@ -76,6 +73,8 @@ class _UserScreenState extends State<UserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -91,6 +90,15 @@ class _UserScreenState extends State<UserScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Text(
+                      "${userProvider.user?.experience ?? 0} XP",
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Text(
                     "User name:",
                     style: Theme.of(context).textTheme.bodyLarge,
