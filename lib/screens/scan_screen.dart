@@ -100,10 +100,11 @@ class _ScanScreenState extends State<ScanScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Scan NFC tag"),
+          Text("Scan the items NFC tag"),
+          SizedBox(height: 20),
           Text(
             item?.name ?? "Scanning for items...",
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           item?.name != null
               ? Image.asset(

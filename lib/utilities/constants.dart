@@ -4,6 +4,7 @@ const kPrimaryColor = Color.fromRGBO(0, 168, 232, 1);
 const kSecondaryColor = Color.fromRGBO(0, 52, 89, 1);
 const kDetailsColor = Color.fromRGBO(254, 203, 52, 1);
 const kTextColor = Colors.black;
+const kAlertColor = Colors.red;
 
 final ThemeData defaultThemeData = ThemeData(
   brightness: Brightness.light,
@@ -43,4 +44,11 @@ final ThemeData defaultThemeData = ThemeData(
       fontVariations: [FontVariation('wght', 400.0)],
     ),
   ),
+);
+
+final kItemTitleStyle = TextStyle(
+  fontFamily: "SourGummy",
+  fontSize: 18,
+  color: kTextColor,
+  fontVariations: [FontVariation('wght', 400.0)],
 );

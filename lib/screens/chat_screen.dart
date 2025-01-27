@@ -67,25 +67,25 @@ class _ChatScreenState extends State<ChatScreen>
     bool? discovering = await flutterP2pConnectionProvider
         .flutterP2pConnectionPlugin
         .discover();
-    snack("discovering $discovering");
+    if (discovering) snack("Discovering nearby devices");
   }
 
-  void handleString(dynamic req) {
+  void _handleString(dynamic req) {
     // if the message is a received nfcId
     if (req.startsWith("\x00\x01")) {
       String res = req.substring(2);
-      receiveItem(res);
+      _receiveItem(res);
     }
     // if the message is an ACK of a sended nfc id
     else if (req.startsWith("\x00\x06")) {
       String res = req.substring(2);
-      finalizeTrade(res);
+      _finalizeTrade(res);
     } else {
       snack(req);
     }
   }
 
-  void receiveItem(String res) async {
+  void _receiveItem(String res) async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
@@ -113,7 +113,7 @@ class _ChatScreenState extends State<ChatScreen>
     });
   }
 
-  void finalizeTrade(String res) async {
+  void _finalizeTrade(String res) async {
     await TreasureItemsDatabase.instance.readByNfcId(res).then((value) {
       if (value != null) {
         if (value.isFound) {
@@ -133,36 +133,40 @@ class _ChatScreenState extends State<ChatScreen>
     });
   }
 
+  void _onCloseSocket(FlutterP2pConnection flutterP2pConnectionPlugin) {
+    flutterP2pConnectionPlugin.closeSocket();
+    flutterP2pConnectionPlugin.disconnect();
+    snack("Disconnected from remote device");
+  }
+
   Future startSocket() async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
 
     if (wifiP2PInfo != null) {
-      bool started = await flutterP2pConnectionPlugin.startSocket(
+      await flutterP2pConnectionPlugin.startSocket(
         groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
         downloadPath: "/storage/emulated/0/Download/",
         maxConcurrentDownloads: 2,
         deleteOnError: true,
         onConnect: (name, address) {
-          snack("$name connected to socket with address: $address");
+          snack("$name connected with address: $address");
         },
         transferUpdate: (transfer) {
-          if (transfer.completed) {
-            snack(
-                "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
-          }
-          print(
-              "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
+          // if (transfer.completed) {
+          //   snack(
+          //       "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
+          // }
+          // print(
+          //     "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
         },
         onCloseSocket: () {
-          flutterP2pConnectionPlugin.closeSocket();
-          flutterP2pConnectionPlugin.disconnect();
-          snack("disconnected");
+          _onCloseSocket(flutterP2pConnectionPlugin);
         },
-        receiveString: handleString,
+        receiveString: _handleString,
       );
-      snack("open socket: $started");
+      // snack("open socket: $started");
     }
   }
 
@@ -178,23 +182,21 @@ class _ChatScreenState extends State<ChatScreen>
         maxConcurrentDownloads: 3,
         deleteOnError: true,
         onConnect: (address) {
-          snack("connected to socket: $address");
+          snack("Connected to socket: $address");
         },
         onCloseSocket: () {
-          flutterP2pConnectionPlugin.closeSocket();
-          flutterP2pConnectionPlugin.disconnect();
-          snack("disconnected");
+          _onCloseSocket(flutterP2pConnectionPlugin);
         },
         transferUpdate: (transfer) {
           // if (transfer.count == 0) transfer.cancelToken?.cancel();
-          if (transfer.completed) {
-            snack(
-                "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
-          }
-          print(
-              "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
+          // if (transfer.completed) {
+          //   snack(
+          //       "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
+          // }
+          // print(
+          //     "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
         },
-        receiveString: handleString,
+        receiveString: _handleString,
       );
     }
   }
@@ -208,7 +210,7 @@ class _ChatScreenState extends State<ChatScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          "closed: $closed",
+          "Closed: $closed",
         ),
       ),
     );
@@ -267,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen>
                   bool isServiceDiscoveryCapable =
                       peers[index].isServiceDiscoveryCapable;
                   if (isServiceDiscoveryCapable == false) {
-                    return null;
+                    return SizedBox.shrink();
                   }
                   return Center(
                     child: GestureDetector(
@@ -277,18 +279,21 @@ class _ChatScreenState extends State<ChatScreen>
                           builder: (context) => Center(
                             child: AlertDialog(
                               content: SizedBox(
-                                height: 200,
+                                height: 100,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("name: ${peers[index].deviceName}"),
+                                    Text(peers[index].deviceName,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge),
                                     Text(
-                                        "address: ${peers[index].deviceAddress}"),
-                                    Text(
-                                        "isGroupOwner: ${peers[index].isGroupOwner}"),
-                                    Text(
-                                        "isServiceDiscoveryCapable: ${peers[index].isServiceDiscoveryCapable}"),
+                                        "Address: ${peers[index].deviceAddress}"),
+                                    // Text(
+                                    //     "isGroupOwner: ${peers[index].isGroupOwner}"),
+                                    // Text(
+                                    //     "isServiceDiscoveryCapable: ${peers[index].isServiceDiscoveryCapable}"),
                                     // Text(
                                     //     "primaryDeviceType: ${peers[index].primaryDeviceType}"),
                                     // Text(
@@ -303,7 +308,7 @@ class _ChatScreenState extends State<ChatScreen>
                                     Navigator.of(context).pop();
                                     bool? bo = await flutterP2pConnectionPlugin
                                         .connect(peers[index].deviceAddress);
-                                    snack("connected: $bo");
+                                    if (bo) snack("Connected: $bo");
                                   },
                                   child: const Text("Connect"),
                                 ),
@@ -398,9 +403,9 @@ class _ChatScreenState extends State<ChatScreen>
             onPressed: () async {
               flutterP2pConnectionPlugin.closeSocket();
               bool? removed = await flutterP2pConnectionPlugin.removeGroup();
-              if (removed) snack("disconnected");
+              if (removed) snack("Disconnected from remote device");
             },
-            child: const Text("remove group/disconnect"),
+            child: const Text("Disconnect"),
           ),
           // ElevatedButton(
           //   onPressed: () async {
@@ -441,16 +446,16 @@ class _ChatScreenState extends State<ChatScreen>
           ElevatedButton(
             onPressed: () async {
               bool? discovering = await flutterP2pConnectionPlugin.discover();
-              snack("discovering $discovering");
+              if (discovering) snack("Discovering nearby devices");
             },
-            child: const Text("discover"),
+            child: const Text("Discover"),
           ),
           ElevatedButton(
             onPressed: () async {
               bool? stopped = await flutterP2pConnectionPlugin.stopDiscovery();
-              snack("stopped discovering $stopped");
+              if (stopped) snack("Stopped discovering");
             },
-            child: const Text("stop discovery"),
+            child: const Text("Stop discovery"),
           ),
           // ElevatedButton(
           //   onPressed: () async {

@@ -89,6 +89,16 @@ class _ItemScreenState extends State<ItemScreen> {
     */
   }
 
+  String _getDateFormatted(DateTime date) {
+    String day = date.day.toString().padLeft(2, '0');
+    String month = date.month.toString().padLeft(2, '0');
+    String year = date.year.toString();
+    String hour = date.hour.toString().padLeft(2, '0');
+    String minute = date.minute.toString().padLeft(2, '0');
+    String seconds = date.second.toString().padLeft(2, '0');
+    return '$year-$month-$day $hour:$minute:$seconds';
+  }
+
   @override
   Widget build(BuildContext context) {
     // update the items list
@@ -127,7 +137,7 @@ class _ItemScreenState extends State<ItemScreen> {
                   ),
                   Text(
                     widget.item.name,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ],
               ),
@@ -136,7 +146,7 @@ class _ItemScreenState extends State<ItemScreen> {
               text: TextSpan(
                 // Note: Styles for TextSpans must be explicitly defined.
                 // Child text spans will inherit styles from parent
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: kItemTitleStyle,
                 children: <TextSpan>[
                   TextSpan(
                     text: 'NFC ID: ',
@@ -152,7 +162,7 @@ class _ItemScreenState extends State<ItemScreen> {
               text: TextSpan(
                 // Note: Styles for TextSpans must be explicitly defined.
                 // Child text spans will inherit styles from parent
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: kItemTitleStyle,
                 children: <TextSpan>[
                   TextSpan(
                     text: 'Description: ',
@@ -168,14 +178,14 @@ class _ItemScreenState extends State<ItemScreen> {
               text: TextSpan(
                 // Note: Styles for TextSpans must be explicitly defined.
                 // Child text spans will inherit styles from parent
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: kItemTitleStyle,
                 children: <TextSpan>[
                   TextSpan(
                     text: 'Collected on: ',
                     style: TextStyle(fontWeight: FontWeight.w900),
                   ),
                   TextSpan(
-                    text: widget.item.collectedOn.toIso8601String(),
+                    text: _getDateFormatted(widget.item.collectedOn),
                   ),
                 ],
               ),

@@ -85,11 +85,14 @@ class _UserScreenState extends State<UserScreen> {
         child: Container(
           margin: const EdgeInsets.all(25),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(
+                    height: 50,
+                  ),
                   Center(
                     child: Text(
                       "${userProvider.user?.experience ?? 0} XP",
@@ -97,7 +100,7 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 50,
                   ),
                   Text(
                     "User name:",
@@ -105,6 +108,7 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                   TextField(
                     controller: _usernameController,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
                       hintText: 'Enter your username',
                       focusedBorder: OutlineInputBorder(
