@@ -105,8 +105,9 @@ class _ChatScreenState extends State<ChatScreen>
           if (mounted) {
             Provider.of<TreasureItemsProvider>(context, listen: false)
                 .updateItems();
+            // Add half the experience of the item to the user
             Provider.of<UserProvider>(context, listen: false)
-                .addExperience(value.experience);
+                .addExperience(value.experience ~/ 2);
           }
         }
       }
@@ -125,8 +126,9 @@ class _ChatScreenState extends State<ChatScreen>
                 .isItemSent = true;
             Provider.of<TreasureItemsProvider>(context, listen: false)
                 .updateItems();
+            // Add half the experience of the item to the user
             Provider.of<UserProvider>(context, listen: false)
-                .addExperience(value.experience ~/ 2); // integer division
+                .addExperience(value.experience ~/ 2);
           }
         }
       }
