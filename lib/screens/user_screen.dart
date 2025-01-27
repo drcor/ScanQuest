@@ -138,10 +138,41 @@ class _UserScreenState extends State<UserScreen> {
               SizedBox(height: 200),
               FilledButton(
                 onPressed: () async {
-                  Provider.of<TreasureItemsProvider>(context, listen: false)
-                      .resetItems();
-                  userProvider.resetUser();
-                  Navigator.pop(context);
+                  bool deleteData = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Delete all data'),
+                        content: Text(
+                            "Are you really sure you want to delete all data?"),
+                        actions: [
+                          TextButton(
+                            child: Text("Yes"),
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (!deleteData) {
+                    return;
+                  }
+
+                  if (mounted) {
+                    Provider.of<TreasureItemsProvider>(context, listen: false)
+                        .resetItems();
+                    userProvider.resetUser();
+                    Navigator.pop(context);
+                  }
                 },
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(kAlertColor),
