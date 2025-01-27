@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bottom_drawer: ^0.0.5
   flutter_p2p_connection: ^2.1.1
   nfc_manager: ^3.5.0
   path: ^1.9.0
@@ -32,16 +31,16 @@ flutter:
   fonts:
     - family: Rowdies
       fonts:
-        - asset: fonts/Rowdies-Bold.ttf
+        - asset: fonts/Rowdies/Rowdies-Bold.ttf
           weight: 900
-        - asset: fonts/Rowdies-Light.ttf
-        - asset: fonts/Rowdies-Regular.ttf
+        - asset: fonts/Rowdies/Rowdies-Light.ttf
+        - asset: fonts/Rowdies/Rowdies-Regular.ttf
           style: normal
           weight: 400
 
     - family: SourGummy
       fonts:
-        - asset: fonts/SourGummy-Italic-VariableFont_wdth,wght.ttf
+        - asset: fonts/Sour_Gummy/SourGummy-Italic-VariableFont_wdth,wght.ttf
           style: italic
-        - asset: fonts/SourGummy-VariableFont_wdth,wght.ttf
+        - asset: fonts/Sour_Gummy/SourGummy-VariableFont_wdth,wght.ttf
           weight: 400
