@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scan_quest_app/provider/treasure_items_provider.dart';
 import 'package:scan_quest_app/utilities/constants.dart';
 import 'package:scan_quest_app/provider/user_provider.dart';
 
@@ -122,6 +123,7 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                 ],
               ),
+              SizedBox(height: 40),
               Center(
                 child: FilledButton(
                   onPressed: canSave ? _saveChanges : null,
@@ -132,6 +134,19 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                   child: Text("Save Changes"),
                 ),
+              ),
+              SizedBox(height: 200),
+              FilledButton(
+                onPressed: () async {
+                  Provider.of<TreasureItemsProvider>(context, listen: false)
+                      .resetItems();
+                  userProvider.resetUser();
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(kAlertColor),
+                ),
+                child: Text("Delete all data"),
               ),
             ],
           ),

@@ -17,4 +17,10 @@ class TreasureItemsProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Future<void> resetItems() async {
+    await TreasureItemsDatabase.instance.resetCollected();
+
+    await updateItems();
+  }
 }

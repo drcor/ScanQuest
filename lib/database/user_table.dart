@@ -69,4 +69,19 @@ class UserDatabase {
 
     return getUser();
   }
+
+  Future<void> resetUser() async {
+    final db = await instance.database;
+
+    await db.update(
+      tableUser,
+      {
+        UserFields.name: 'Anonymous',
+        UserFields.lastModification: DateTime.now().toIso8601String(),
+        UserFields.experience: 0,
+      },
+      where: '${UserFields.id} = ?',
+      whereArgs: [0],
+    );
+  }
 }

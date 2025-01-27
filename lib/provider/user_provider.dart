@@ -53,4 +53,9 @@ class UserProvider with ChangeNotifier {
       user?.lastModification = DateTime.now();
     }
   }
+
+  Future<void> resetUser() async {
+    await UserDatabase.instance.resetUser();
+    await setup();
+  }
 }

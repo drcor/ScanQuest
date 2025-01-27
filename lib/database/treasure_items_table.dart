@@ -160,6 +160,15 @@ class TreasureItemsDatabase {
     );
   }
 
+  Future<int> resetCollected() async {
+    final db = await instance.database;
+
+    return db.update(
+      tableTreasureItems,
+      {TreasureItemFields.isFound: 0},
+    );
+  }
+
   Future close() async {
     final db = await instance.database;
     db.close();
