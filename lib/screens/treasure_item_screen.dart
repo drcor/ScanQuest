@@ -17,78 +17,43 @@ class ItemScreen extends StatefulWidget {
 }
 
 class _ItemScreenState extends State<ItemScreen> {
-  bool isWriting = false;
+  bool _isTradingItem = false;
 
-  void _isWriting() {
+  /// Set the trading state to true
+  void _isTrading() {
     setState(() {
-      isWriting = true;
+      _isTradingItem = true;
     });
   }
 
-  void _isNotWriting() {
+  /// Set the trading state to false
+  void _isNotTrading() {
     setState(() {
-      isWriting = false;
+      _isTradingItem = false;
     });
   }
 
+  /// Trade the item with the other device
   void _tradeItem() async {
+    // Prevent multiple trading
+    if (_isTradingItem) {
+      return;
+    }
+
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
 
-    _isWriting();
+    _isTrading();
 
+    // Send the NFC ID to the other device
     flutterP2pConnectionPlugin
         .sendStringToSocket("\x00\x01${widget.item.nfcId}");
 
-    _isNotWriting();
-
-    /*
-    if (isWriting) {
-      NfcManager.instance.stopSession();
-      _isNotWriting();
-      return;
-    }
-
-    _isWriting();
-    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      var ndef = Ndef.from(tag);
-      if (ndef == null || !ndef.isWritable) {
-        Helper.showAlertDialog(context, 'Alert', 'Tag is not ndef writable');
-        NfcManager.instance
-            .stopSession(errorMessage: 'Tag is not ndef writable');
-        return;
-      }
-
-      NdefMessage message = NdefMessage([
-        NdefRecord.createText(widget.item.nfcId),
-      ]);
-
-      try {
-        await ndef.write(message);
-        NfcManager.instance.stopSession();
-
-        // Update the item as not collected
-        widget.item.isFound = false;
-        await TreasureItemsDatabase.instance.update(widget.item);
-      } catch (e) {
-        if (mounted) {
-          Helper.showAlertDialog(context, 'Error', e.toString());
-        }
-        NfcManager.instance.stopSession(errorMessage: e.toString());
-        _isNotWriting();
-        return;
-      }
-
-      _isNotWriting();
-
-      if (mounted) {
-        Navigator.of(context).pop(true);
-      }
-    });
-    */
+    _isNotTrading();
   }
 
+  /// Get the formatted [date] string as 'yyyy-MM-dd HH:mm:ss'
   String _getDateFormatted(DateTime date) {
     String day = date.day.toString().padLeft(2, '0');
     String month = date.month.toString().padLeft(2, '0');
@@ -104,7 +69,9 @@ class _ItemScreenState extends State<ItemScreen> {
     // update the items list
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context);
+    // Listen to the item sent event
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // If the item is sent, close the screen
       if (flutterP2pConnectionPlugin.isItemSent) {
         flutterP2pConnectionPlugin.isItemSent = false;
         Navigator.of(context).pop(true);
@@ -195,10 +162,10 @@ class _ItemScreenState extends State<ItemScreen> {
               onPressed: _tradeItem,
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(
-                  isWriting ? kSecondaryColor : kPrimaryColor,
+                  _isTradingItem ? kSecondaryColor : kPrimaryColor,
                 ),
               ),
-              child: Text(isWriting ? 'Cancel trading' : 'Trade Item'),
+              child: Text(_isTradingItem ? 'Cancel trading' : 'Trade Item'),
             ),
             SizedBox(height: 20),
           ],

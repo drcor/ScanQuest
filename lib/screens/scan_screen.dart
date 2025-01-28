@@ -21,7 +21,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void initState() {
     super.initState();
-    _nfcReader();
+    _startNfcReader();
   }
 
   @override
@@ -30,12 +30,15 @@ class _ScanScreenState extends State<ScanScreen> {
     super.dispose();
   }
 
-  void _nfcReader() async {
-    // Check availability
+  /// Start the NFC reader to scan the items
+  /// If the item is found, update the item as found and add experience to the user
+  /// Show an alert dialog if the item is not found
+  void _startNfcReader() async {
+    // Check availability of NFC
     NfcManager.instance.isAvailable().then((isAvailable) {
       if (!isAvailable) {
         if (mounted) {
-          Helper.showAlertDialog(context, 'Alert', 'NFC is not available');
+          Helper.showAlert(context, 'Alert', 'NFC is not available');
         }
         return;
       }
@@ -43,13 +46,13 @@ class _ScanScreenState extends State<ScanScreen> {
         isNFCAvailable = true;
       });
 
-      // Start Session
+      // Start the NFC session
       NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
         Ndef? ndef = Ndef.from(tag);
 
         if (ndef == null || ndef.cachedMessage == null) {
           if (mounted) {
-            Helper.showAlertDialog(
+            Helper.showAlert(
               context,
               'Alert',
               'Tag don\'t contain an item',
@@ -58,16 +61,20 @@ class _ScanScreenState extends State<ScanScreen> {
           return;
         }
 
+        // Read the NDEF message
         NdefMessage ndefMessage = ndef.cachedMessage!;
         NdefRecord ndefRecord = ndefMessage.records.first;
 
+        // Get the payload from the NDEF record
         String payload = String.fromCharCodes(
           ndefRecord.payload.sublist(ndefRecord.payload[0] + 1),
         );
 
+        // Read the item from the database
         item = await TreasureItemsDatabase.instance.readByNfcId(payload);
         setState(() {});
 
+        // If the item is not found, update the item as found
         if (item != null && item!.isFound == false) {
           item!.collectedOn = DateTime.now();
           item!.isFound = true;
@@ -80,7 +87,7 @@ class _ScanScreenState extends State<ScanScreen> {
             Provider.of<UserProvider>(context, listen: false)
                 .addExperience(item!.experience);
 
-            Helper.showAlertDialog(
+            Helper.showAlert(
               context,
               'New item discovered',
               '${tmp!.name} was found',

@@ -5,42 +5,52 @@ class FlutterP2PConnectionProvider with ChangeNotifier {
   final FlutterP2pConnection _flutterP2pConnectionPlugin =
       FlutterP2pConnection();
 
-  bool itemSent = false;
+  bool _itemSent = false;
 
+  /// Get the FlutterP2pConnection instance
   FlutterP2pConnection get flutterP2pConnectionPlugin =>
       _flutterP2pConnectionPlugin;
 
-  bool get isItemSent => itemSent;
+  /// Check if the item was sent successfully
+  bool get isItemSent => _itemSent;
 
+  /// Set the itemSent value
   set isItemSent(bool value) {
-    itemSent = value;
+    _itemSent = value;
     notifyListeners();
   }
 
-  Future<void> checkPermissions() async {
-    // check if storage permission is granted
-    if (!await FlutterP2pConnection().checkStoragePermission()) {
-      // request storage permission
-      await FlutterP2pConnection().askStoragePermission();
-    }
-    // check if location is enabled
-    if (!await FlutterP2pConnection().checkLocationEnabled()) {
-      // enable location
-      FlutterP2pConnection().enableLocationServices();
-    }
-    // check if wifi is enabled
-    if (!await FlutterP2pConnection().checkWifiEnabled()) {
-      // enable wifi
-      await FlutterP2pConnection().enableWifiServices();
-    }
-    // ask all permissions required for group creation and connections (nearbyWifiDevices & location)
-    await FlutterP2pConnection().askConnectionPermissions();
-  }
-
+  /// Initialize the FlutterP2pConnection plugin
   Future<void> init() async {
     await _flutterP2pConnectionPlugin.initialize();
     await _flutterP2pConnectionPlugin.register();
 
     notifyListeners();
+  }
+
+  /// Check if the required permissions are granted
+  /// If not, request the permissions
+  ///
+  /// Permissions required:
+  /// - Storage
+  /// - Location
+  /// - Wifi
+  /// - NearbyWifiDevices
+  Future<void> checkPermissions() async {
+    // Check if storage permission is granted
+    if (!await FlutterP2pConnection().checkStoragePermission()) {
+      // Request storage permission
+      await FlutterP2pConnection().askStoragePermission();
+    }
+    // Check if location is enabled
+    if (!await FlutterP2pConnection().checkLocationEnabled()) {
+      FlutterP2pConnection().enableLocationServices(); // Enable location
+    }
+    // Check if wifi is enabled
+    if (!await FlutterP2pConnection().checkWifiEnabled()) {
+      await FlutterP2pConnection().enableWifiServices(); // Enable wifi
+    }
+    // Ask all permissions required for group creation and connections (nearbyWifiDevices & location)
+    await FlutterP2pConnection().askConnectionPermissions();
   }
 }

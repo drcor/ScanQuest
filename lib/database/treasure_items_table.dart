@@ -22,6 +22,7 @@ class TreasureItemsDatabase {
   }
 
   Future _createDB(Database db, int version) async {
+    // Create the items table
     await db.execute('''
       CREATE TABLE $tableTreasureItems (
         ${TreasureItemFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +36,7 @@ class TreasureItemsDatabase {
       )
     ''');
 
+    // Create the items all of them set as not found
     await db.execute('''
       INSERT INTO $tableTreasureItems (
         ${TreasureItemFields.nfcId},
@@ -59,19 +61,13 @@ class TreasureItemsDatabase {
     ''');
   }
 
-  Future<TreasureItem> create(TreasureItem treasureItem) async {
-    final db = await instance.database;
-    // final id = await db.insert(tableTreasureItems, treasureItem.toJson());
-
-    return await db.transaction((txn) async {
-      final id = await txn.insert(tableTreasureItems, treasureItem.toJson());
-      return treasureItem.copy(id: id);
-    });
-  }
-
+  /// Get the item from the database with [id]
+  ///
+  /// Return the item if found, otherwise null
   Future<TreasureItem?> read(int id) async {
     final db = await instance.database;
 
+    // Select the item by id
     final maps = await db.query(
       tableTreasureItems,
       columns: TreasureItemFields.allValues,
@@ -86,9 +82,13 @@ class TreasureItemsDatabase {
     }
   }
 
+  /// Get the item from the database with [nfcId]
+  ///
+  /// Return the item if found, otherwise null
   Future<TreasureItem?> readByNfcId(String nfcId) async {
     final db = await instance.database;
 
+    // Select the item by nfcId
     final maps = await db.query(
       tableTreasureItems,
       columns: TreasureItemFields.allValues,
@@ -103,24 +103,13 @@ class TreasureItemsDatabase {
     }
   }
 
-  Future<TreasureItem?> readFirst() async {
-    final db = await instance.database;
-
-    final maps = await db.query(
-      tableTreasureItems,
-      columns: TreasureItemFields.allValues,
-    );
-
-    if (maps.isNotEmpty) {
-      return TreasureItem.fromJson(maps.first);
-    } else {
-      return null;
-    }
-  }
-
+  /// Get all the items from the database
+  ///
+  /// Return a list of all the items if found, otherwise null
   Future<List<TreasureItem>?> readAllCollected() async {
     final db = await instance.database;
 
+    // Select all the items that have been found
     final maps = await db.query(
       tableTreasureItems,
       columns: TreasureItemFields.allValues,
@@ -139,38 +128,33 @@ class TreasureItemsDatabase {
     }
   }
 
-  Future<TreasureItem?> update(TreasureItem item) async {
+  /// Update the item in the database with [item] id
+  ///
+  /// Return the number of items updated
+  Future<int> update(TreasureItem item) async {
     final db = await instance.database;
 
-    final id = await db.update(
+    // Update the item by nfcId
+    final count = await db.update(
       tableTreasureItems,
       item.toJson(),
       where: '${TreasureItemFields.nfcId} = ?',
       whereArgs: [item.nfcId],
     );
 
-    return read(id);
+    return count;
   }
 
-  Future<int> deleteAll() async {
-    final db = await instance.database;
-
-    return db.delete(
-      tableTreasureItems,
-    );
-  }
-
+  /// Reset all the items in the database as not found
+  ///
+  /// Return the number of items updated
   Future<int> resetCollected() async {
     final db = await instance.database;
 
-    return db.update(
+    // Set all the items as not found
+    return await db.update(
       tableTreasureItems,
       {TreasureItemFields.isFound: 0},
     );
-  }
-
-  Future close() async {
-    final db = await instance.database;
-    db.close();
   }
 }

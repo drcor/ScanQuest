@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 
+/// The primary color of the app
 const kPrimaryColor = Color.fromRGBO(0, 168, 232, 1);
+
+/// The secondary color of the app
 const kSecondaryColor = Color.fromRGBO(0, 52, 89, 1);
+
+/// The details color of the app
 const kDetailsColor = Color.fromRGBO(254, 203, 52, 1);
+
+/// The text color of the app
 const kTextColor = Colors.black;
+
+/// The alert color of the app
 const kAlertColor = Colors.red;
 
+/// The default theme data setting the primary color,
+/// secondary color, and text theme of the app
 final ThemeData defaultThemeData = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.fromSeed(
@@ -46,6 +57,7 @@ final ThemeData defaultThemeData = ThemeData(
   ),
 );
 
+/// The style for the item title in the treasure item screen
 final kItemTitleStyle = TextStyle(
   fontFamily: "SourGummy",
   fontSize: 18,

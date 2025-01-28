@@ -36,15 +36,18 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
+  /// Setup the user provider and check permissions
   void _setup(FlutterP2PConnectionProvider flutterP2pConnectionProvider) async {
     Provider.of<UserProvider>(context, listen: false).setup();
     await flutterP2pConnectionProvider.checkPermissions();
   }
 
+  /// Handle the bottom navigation bar item tap
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    // Animate to the selected page
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -67,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
           TextButton(
             onPressed: () {
               if (userProvider.user == null) {
-                Helper.showAlertDialog(
+                Helper.showAlert(
                   context,
                   'Error',
                   'User not found.\nPlease delete the app storage and restart the app.\nYou will lose all your progress.',
@@ -98,6 +101,7 @@ class _MainScreenState extends State<MainScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
+          // Update the selected index when the page changes
           setState(() {
             _selectedIndex = index;
           });

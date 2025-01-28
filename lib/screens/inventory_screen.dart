@@ -18,22 +18,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() => setup());
-
-    // Avoid NFC pop-up
-    // NfcManager.instance.startSession(
-    //   onDiscovered: (NfcTag tag) async {},
-    // );
+    Future.microtask(() => _setup());
   }
 
   @override
   void dispose() {
-    // NfcManager.instance.stopSession();
     super.dispose();
   }
 
-  Future<void> setup() async {
-    Provider.of<TreasureItemsProvider>(context, listen: false).updateItems();
+  /// Setup the inventory screen
+  Future<void> _setup() async {
+    await Provider.of<TreasureItemsProvider>(context, listen: false)
+        .updateItems();
   }
 
   @override
@@ -74,12 +70,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             ),
                           )
                               .then((value) {
-                            // if the item is traded, update the items
+                            // If the item is traded, update the items
                             if (value != null && value) {
                               provider.updateItems();
                               if (mounted) {
-                                Helper.showAlertDialog(
-                                  ctx,
+                                Helper.showAlert(
+                                  context,
                                   'Success',
                                   'Item traded successfully',
                                 );

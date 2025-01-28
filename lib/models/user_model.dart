@@ -1,5 +1,7 @@
+/// Table name of the User model
 const String tableUser = 'user';
 
+/// User table fields
 mixin UserFields {
   static final List<String> allValues = [
     id,
@@ -26,6 +28,7 @@ class User {
     required this.experience,
   });
 
+  /// Create a User from a json map
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json[UserFields.id] as int?,
@@ -36,6 +39,7 @@ class User {
     );
   }
 
+  /// Create a json map from a User
   Map<String, dynamic> toJson() {
     return {
       UserFields.id: id,

@@ -15,7 +15,7 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  bool canSave = false;
+  bool _canUpdateUsername = false;
 
   @override
   void initState() {
@@ -29,18 +29,23 @@ class _UserScreenState extends State<UserScreen> {
     });
   }
 
-  void _canSave() {
+  /// Set the state to save the username
+  void _canSaveUsername() {
     setState(() {
-      canSave = true;
+      _canUpdateUsername = true;
     });
   }
 
+  /// Set the state to not save the username
   void _cannotSave() {
     setState(() {
-      canSave = false;
+      _canUpdateUsername = false;
     });
   }
 
+  /// Handle the text change event
+  /// If the text is empty or the same as the current username, the save button will be disabled
+  /// Otherwise, the save button will be enabled
   void _onTextChanged() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -49,9 +54,12 @@ class _UserScreenState extends State<UserScreen> {
       _cannotSave();
       return;
     }
-    _canSave();
+    _canSaveUsername();
   }
 
+  /// Save the updated username using the [UserProvider]
+  /// If the username is empty or the same as the current username, the changes will not be saved
+  /// Otherwise, the changes will be saved
   void _saveChanges() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -61,7 +69,6 @@ class _UserScreenState extends State<UserScreen> {
     }
 
     await userProvider.updateName(_usernameController.text);
-    // widget.callbackOnSaveChanges();
 
     _cannotSave();
   }
@@ -126,10 +133,10 @@ class _UserScreenState extends State<UserScreen> {
               SizedBox(height: 40),
               Center(
                 child: FilledButton(
-                  onPressed: canSave ? _saveChanges : null,
+                  onPressed: _canUpdateUsername ? _saveChanges : null,
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(
-                      canSave ? kPrimaryColor : kSecondaryColor,
+                      _canUpdateUsername ? kPrimaryColor : kSecondaryColor,
                     ),
                   ),
                   child: Text("Save Changes"),

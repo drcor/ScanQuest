@@ -19,8 +19,8 @@ class _ChatScreenState extends State<ChatScreen>
     with AutomaticKeepAliveClientMixin<ChatScreen> {
   final TextEditingController _msgTextController = TextEditingController();
 
-  WifiP2PInfo? wifiP2PInfo;
-  List<DiscoveredPeers> peers = [];
+  WifiP2PInfo? _wifiP2PInfo;
+  List<DiscoveredPeers> _peers = [];
 
   @override
   bool get wantKeepAlive => true;
@@ -32,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen>
     _init();
   }
 
+  /// Initialize the FlutterP2PConnection plugin and start discovering nearby devices
   void _init() async {
     final flutterP2pConnectionProvider =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false);
@@ -43,11 +44,11 @@ class _ChatScreenState extends State<ChatScreen>
         .listen((event) {
       if (!mounted) return;
       setState(() {
-        wifiP2PInfo = event;
+        _wifiP2PInfo = event;
       });
 
-      if (wifiP2PInfo != null && wifiP2PInfo!.isConnected) {
-        if (wifiP2PInfo!.isGroupOwner) {
+      if (_wifiP2PInfo != null && _wifiP2PInfo!.isConnected) {
+        if (_wifiP2PInfo!.isGroupOwner) {
           startSocket();
         } else {
           connectToSocket();
@@ -59,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen>
         .listen((event) {
       if (!mounted) return;
       setState(() {
-        peers = event;
+        _peers = event;
       });
     });
 
@@ -70,6 +71,7 @@ class _ChatScreenState extends State<ChatScreen>
     if (discovering) snack("Discovering nearby devices");
   }
 
+  /// Handle the received message
   void _handleString(dynamic req) {
     // if the message is a received nfcId
     if (req.startsWith("\x00\x01")) {
@@ -85,12 +87,13 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
+  /// Receive the item and send an ACK to the sender
   void _receiveItem(String res) async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
 
-    await TreasureItemsDatabase.instance.readByNfcId(res).then((value) {
+    await TreasureItemsDatabase.instance.readByNfcId(res).then((value) async {
       if (value != null) {
         if (!value.isFound) {
           // send an ACK to the sender
@@ -100,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen>
           // update the item as found
           value.isFound = true;
           value.collectedOn = DateTime.now();
-          TreasureItemsDatabase.instance.update(value);
+          await TreasureItemsDatabase.instance.update(value);
           // update the items list
           if (mounted) {
             Provider.of<TreasureItemsProvider>(context, listen: false)
@@ -114,12 +117,13 @@ class _ChatScreenState extends State<ChatScreen>
     });
   }
 
+  /// Finalize the trade by updating the item as not found
   void _finalizeTrade(String res) async {
-    await TreasureItemsDatabase.instance.readByNfcId(res).then((value) {
+    await TreasureItemsDatabase.instance.readByNfcId(res).then((value) async {
       if (value != null) {
         if (value.isFound) {
           value.isFound = false;
-          TreasureItemsDatabase.instance.update(value);
+          await TreasureItemsDatabase.instance.update(value);
           // update the items list
           if (mounted) {
             Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
@@ -135,51 +139,46 @@ class _ChatScreenState extends State<ChatScreen>
     });
   }
 
+  /// Handle the close socket event
   void _onCloseSocket(FlutterP2pConnection flutterP2pConnectionPlugin) {
     flutterP2pConnectionPlugin.closeSocket();
     flutterP2pConnectionPlugin.disconnect();
     snack("Disconnected from remote device");
   }
 
-  Future startSocket() async {
+  /// Start a socket connection
+  Future<void> startSocket() async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
 
-    if (wifiP2PInfo != null) {
+    if (_wifiP2PInfo != null) {
       await flutterP2pConnectionPlugin.startSocket(
-        groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
+        groupOwnerAddress: _wifiP2PInfo!.groupOwnerAddress,
         downloadPath: "/storage/emulated/0/Download/",
         maxConcurrentDownloads: 2,
         deleteOnError: true,
         onConnect: (name, address) {
           snack("$name connected with address: $address");
         },
-        transferUpdate: (transfer) {
-          // if (transfer.completed) {
-          //   snack(
-          //       "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
-          // }
-          // print(
-          //     "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
-        },
+        transferUpdate: (transfer) {},
         onCloseSocket: () {
           _onCloseSocket(flutterP2pConnectionPlugin);
         },
         receiveString: _handleString,
       );
-      // snack("open socket: $started");
     }
   }
 
-  Future connectToSocket() async {
+  /// Connect to a socket
+  Future<void> connectToSocket() async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
             .flutterP2pConnectionPlugin;
 
-    if (wifiP2PInfo != null) {
+    if (_wifiP2PInfo != null) {
       await flutterP2pConnectionPlugin.connectToSocket(
-        groupOwnerAddress: wifiP2PInfo!.groupOwnerAddress,
+        groupOwnerAddress: _wifiP2PInfo!.groupOwnerAddress,
         downloadPath: "/storage/emulated/0/Download/",
         maxConcurrentDownloads: 3,
         deleteOnError: true,
@@ -189,20 +188,13 @@ class _ChatScreenState extends State<ChatScreen>
         onCloseSocket: () {
           _onCloseSocket(flutterP2pConnectionPlugin);
         },
-        transferUpdate: (transfer) {
-          // if (transfer.count == 0) transfer.cancelToken?.cancel();
-          // if (transfer.completed) {
-          //   snack(
-          //       "${transfer.failed ? "failed to ${transfer.receiving ? "receive" : "send"}" : transfer.receiving ? "received" : "sent"}: ${transfer.filename}");
-          // }
-          // print(
-          //     "ID: ${transfer.id}, FILENAME: ${transfer.filename}, PATH: ${transfer.path}, COUNT: ${transfer.count}, TOTAL: ${transfer.total}, COMPLETED: ${transfer.completed}, FAILED: ${transfer.failed}, RECEIVING: ${transfer.receiving}");
-        },
+        transferUpdate: (transfer) {},
         receiveString: _handleString,
       );
     }
   }
 
+  /// Close the socket connection
   Future closeSocketConnection() async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
@@ -218,6 +210,7 @@ class _ChatScreenState extends State<ChatScreen>
     );
   }
 
+  /// Send a message to the connected device
   Future sendMessage() async {
     final flutterP2pConnectionPlugin =
         Provider.of<FlutterP2PConnectionProvider>(context, listen: false)
@@ -225,6 +218,7 @@ class _ChatScreenState extends State<ChatScreen>
     flutterP2pConnectionPlugin.sendStringToSocket(_msgTextController.text);
   }
 
+  /// Show a snack bar message at the bottom of the screen
   void snack(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -251,14 +245,6 @@ class _ChatScreenState extends State<ChatScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Text(
-          //   "IP: ${wifiP2PInfo == null ? "null" : wifiP2PInfo?.groupOwnerAddress}",
-          // ),
-          // wifiP2PInfo != null
-          //     ? Text(
-          //         "connected: ${wifiP2PInfo?.isConnected}, isGroupOwner: ${wifiP2PInfo?.isGroupOwner}, groupFormed: ${wifiP2PInfo?.groupFormed}, clients: ${wifiP2PInfo?.clients}")
-          //     //"connected: ${wifiP2PInfo?.isConnected}, isGroupOwner: ${wifiP2PInfo?.isGroupOwner}, groupFormed: ${wifiP2PInfo?.groupFormed}, groupOwnerAddress: ${wifiP2PInfo?.groupOwnerAddress}, clients: ${wifiP2PInfo?.clients}")
-          //     : const SizedBox.shrink(),
           const SizedBox(height: 10),
           const Text("Devices:"),
           SizedBox(
@@ -266,10 +252,10 @@ class _ChatScreenState extends State<ChatScreen>
             width: MediaQuery.of(context).size.width,
             child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: peers.length,
+                itemCount: _peers.length,
                 itemBuilder: (context, index) {
                   bool isServiceDiscoveryCapable =
-                      peers[index].isServiceDiscoveryCapable;
+                      _peers[index].isServiceDiscoveryCapable;
                   if (isServiceDiscoveryCapable == false) {
                     return SizedBox.shrink();
                   }
@@ -286,21 +272,12 @@ class _ChatScreenState extends State<ChatScreen>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(peers[index].deviceName,
+                                    Text(_peers[index].deviceName,
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyLarge),
                                     Text(
-                                        "Address: ${peers[index].deviceAddress}"),
-                                    // Text(
-                                    //     "isGroupOwner: ${peers[index].isGroupOwner}"),
-                                    // Text(
-                                    //     "isServiceDiscoveryCapable: ${peers[index].isServiceDiscoveryCapable}"),
-                                    // Text(
-                                    //     "primaryDeviceType: ${peers[index].primaryDeviceType}"),
-                                    // Text(
-                                    //     "secondaryDeviceType: ${peers[index].secondaryDeviceType}"),
-                                    // Text("status: ${peers[index].status}"),
+                                        "Address: ${_peers[index].deviceAddress}"),
                                   ],
                                 ),
                               ),
@@ -309,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen>
                                   onPressed: () async {
                                     Navigator.of(context).pop();
                                     bool? bo = await flutterP2pConnectionPlugin
-                                        .connect(peers[index].deviceAddress);
+                                        .connect(_peers[index].deviceAddress);
                                     if (bo) snack("Connected: $bo");
                                   },
                                   child: const Text("Connect"),
@@ -328,7 +305,7 @@ class _ChatScreenState extends State<ChatScreen>
                         ),
                         child: Center(
                           child: Text(
-                            peers[index]
+                            _peers[index]
                                 .deviceName
                                 .toString()
                                 .characters
@@ -345,62 +322,6 @@ class _ChatScreenState extends State<ChatScreen>
                   );
                 }),
           ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     snack(await flutterP2pConnectionPlugin.askStoragePermission()
-          //         ? "granted"
-          //         : "denied");
-          //   },
-          //   child: const Text("ask storage permission"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     snack(await flutterP2pConnectionPlugin.askConnectionPermissions()
-          //         ? "granted"
-          //         : "denied");
-          //   },
-          //   child: const Text(
-          //     "ask required permissions for connection (nearbyWifiDevices & location)",
-          //     textAlign: TextAlign.center,
-          //   ),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     snack(await flutterP2pConnectionPlugin.checkLocationEnabled()
-          //         ? "enabled"
-          //         : "disabled");
-          //   },
-          //   child: const Text(
-          //     "check location enabled",
-          //   ),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     snack(await flutterP2pConnectionPlugin.checkWifiEnabled()
-          //         ? "enabled"
-          //         : "disabled");
-          //   },
-          //   child: const Text("check wifi enabled"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     print(await flutterP2pConnectionPlugin.enableLocationServices());
-          //   },
-          //   child: const Text("enable location"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     print(await flutterP2pConnectionPlugin.enableWifiServices());
-          //   },
-          //   child: const Text("enable wifi"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     bool? created = await flutterP2pConnectionPlugin.createGroup();
-          //     snack("created group: $created");
-          //   },
-          //   child: const Text("create group"),
-          // ),
           ElevatedButton(
             onPressed: () async {
               flutterP2pConnectionPlugin.closeSocket();
@@ -409,42 +330,6 @@ class _ChatScreenState extends State<ChatScreen>
             },
             child: const Text("Disconnect"),
           ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     var info = await flutterP2pConnectionPlugin.groupInfo();
-          //     showDialog(
-          //       context: context,
-          //       builder: (context) => Center(
-          //         child: Dialog(
-          //           child: SizedBox(
-          //             height: 200,
-          //             child: Padding(
-          //               padding: const EdgeInsets.symmetric(horizontal: 10),
-          //               child: Column(
-          //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //                 crossAxisAlignment: CrossAxisAlignment.start,
-          //                 children: [
-          //                   Text("groupNetworkName: ${info?.groupNetworkName}"),
-          //                   Text("passPhrase: ${info?.passPhrase}"),
-          //                   Text("isGroupOwner: ${info?.isGroupOwner}"),
-          //                   Text("clients: ${info?.clients}"),
-          //                 ],
-          //               ),
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //     );
-          //   },
-          //   child: const Text("get group info"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     String? ip = await flutterP2pConnectionPlugin.getIPAddress();
-          //     snack("ip: $ip");
-          //   },
-          //   child: const Text("get ip"),
-          // ),
           ElevatedButton(
             onPressed: () async {
               bool? discovering = await flutterP2pConnectionPlugin.discover();
@@ -459,24 +344,6 @@ class _ChatScreenState extends State<ChatScreen>
             },
             child: const Text("Stop discovery"),
           ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     startSocket();
-          //   },
-          //   child: const Text("open a socket"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     connectToSocket();
-          //   },
-          //   child: const Text("connect to socket"),
-          // ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     closeSocketConnection();
-          //   },
-          //   child: const Text("close socket"),
-          // ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

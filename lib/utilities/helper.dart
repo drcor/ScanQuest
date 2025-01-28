@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Helper {
-  static void showAlertDialog(
+  /// Show an alert dialog with the given [title] and [message]
+  static void showAlert(
     BuildContext context,
     String title,
     String message,
   ) {
-    // show the dialog
+    // Show the alert dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -17,6 +18,7 @@ class Helper {
             TextButton(
               child: Text("OK"),
               onPressed: () {
+                // Close the dialog
                 Navigator.of(context).pop();
               },
             )

@@ -21,6 +21,7 @@ class UserDatabase {
   }
 
   Future _createDB(Database db, int version) async {
+    // Create the user table
     await db.execute('''
       CREATE TABLE $tableUser (
         ${UserFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,6 +31,7 @@ class UserDatabase {
       )
     ''');
 
+    // Insert the default and only user
     await db.execute('''
       INSERT INTO $tableUser (
         ${UserFields.id},
@@ -41,6 +43,9 @@ class UserDatabase {
     ''');
   }
 
+  /// Get the user from the database
+  ///
+  /// Return the user if found, otherwise return null
   Future<User?> getUser() async {
     final db = await instance.database;
     final maps = await db.query(
@@ -57,6 +62,9 @@ class UserDatabase {
     }
   }
 
+  /// Update the user in the database with [user] id
+  ///
+  /// Return the updated user if successful, otherwise return null
   Future<User?> update(User user) async {
     final db = await instance.database;
 
@@ -70,6 +78,9 @@ class UserDatabase {
     return getUser();
   }
 
+  /// Reset the user to the default values
+  /// - Name: Anonymous
+  /// - Experience: 0
   Future<void> resetUser() async {
     final db = await instance.database;
 

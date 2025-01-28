@@ -1,5 +1,7 @@
+/// Table name of the TreasureItems model
 const String tableTreasureItems = 'items';
 
+/// TreasureItem table fields
 mixin TreasureItemFields {
   static final List<String> allValues = [
     id,
@@ -42,6 +44,7 @@ class TreasureItem {
     required this.isFound,
   });
 
+  /// Create a TreasureItem from a json map
   factory TreasureItem.fromJson(Map<String, dynamic> json) {
     return TreasureItem(
       id: json[TreasureItemFields.id] as int?,
@@ -56,6 +59,7 @@ class TreasureItem {
     );
   }
 
+  /// Create a json map from a TreasureItem
   Map<String, dynamic> toJson() {
     return {
       TreasureItemFields.id: id,
@@ -68,25 +72,4 @@ class TreasureItem {
       TreasureItemFields.isFound: isFound ? 1 : 0, // Fix for SQLite
     };
   }
-
-  TreasureItem copy({
-    int? id,
-    String? nfcId,
-    String? name,
-    String? description,
-    String? image,
-    int? experience,
-    DateTime? collectedOn,
-    bool? isFound,
-  }) =>
-      TreasureItem(
-        id: id ?? this.id,
-        nfcId: nfcId ?? this.nfcId,
-        name: name ?? this.name,
-        description: description ?? this.description,
-        image: image ?? this.image,
-        experience: experience ?? this.experience,
-        collectedOn: collectedOn ?? this.collectedOn,
-        isFound: isFound ?? this.isFound,
-      );
 }
