@@ -1,3 +1,20 @@
+---
+documentclass: article
+papersize: a4
+fontfamily: cantarell
+colorlinks: linkcolor
+lang: en-US
+
+title: 'ScanQuest - General Documentation'
+author:
+- André Ferreira
+- Diogo Correia
+
+output:
+  pdf_document: 
+    latex_engine: pdflatex
+---
+
 # ScanQuest
 
 **ScanQuest** is a treasure hunt game for android devices, that collects items by scanning the correspondent NFC tags, receiving a pre-determined number of experience for each item scanned.
@@ -20,7 +37,12 @@ Instructions for Windows, MacOS and Linux.
 4. Select the device where you want the app to be installed
 5. Press **Run** or execute `flutter run`
 
+## Documentation
+
+More documentation about code can be found in the folder `doc/api`.
+
 ## Sources
+
 ### Fonts
 
 The fonts were obtained from Google Fonts
@@ -30,27 +52,37 @@ The fonts were obtained from Google Fonts
 
 ### Icons
 
-Hand made by [André Ferreira](https://github.com/andr3w10).
+Hand made by [André Ferreira](https://github.com/andr3w10) using [Aseprite](https://www.aseprite.org/).
 
-![Chat](icons/chat.png "Chat")
-![Home](icons/home.png "Home")
-![Scan](icons/scan.png "Scan")
+![Chat](icons/dark/chat.png "Chat")
+![Home](icons/dark/home.png "Home")
+![Scan](icons/dark/scan.png "Scan")
 
 ### Images
 
-Hand made by [André Ferreira](https://github.com/andr3w10).
+Hand made by [André Ferreira](https://github.com/andr3w10) using [Aseprite](https://www.aseprite.org/).
 
-![Arrow](images/arrow.png "Arrow")
-![Basic Sword](images/basic_sword.png "Basic Sword")
-![Berry](images/berry.png "Berry")
-![Cat](images/cat.png "Cat")
-![Chameleon](images/chameleon.png "Chameleon")
-![Chicken Leg](images/chicken_leg.png "Chicken Leg")
-![Falcon](images/falcon.png "Falcon")
-![Fire Arrow](images/fire_arrow.png "Fire Arrow")
-![Fox](images/fox.png "Fox")
-![Goblin](images/goblin.png "Goblin")
-![Skeleton](images/skeleton.png "Skeleton")
+![Arrow](images/arrow.png "Arrow") Arrow with 3xp
+
+![Basic Sword](images/basic_sword.png "Basic Sword") Basic Sword with 2xp
+
+![Berry](images/berry.png "Berry") Berry with 4xp
+
+![Cat](images/cat.png "Cat") Cat with 7xp
+
+![Chameleon](images/chameleon.png "Chameleon") Chameleon with 12xp
+
+![Chicken Leg](images/chicken_leg.png "Chicken Leg") Chicken Leg with 3xp
+
+![Falcon](images/falcon.png "Falcon") Falcon with 5xp
+
+![Fire Arrow](images/fire_arrow.png "Fire Arrow") Fire Arrow with 6xp
+
+![Fox](images/fox.png "Fox") Fox with 10xp
+
+![Goblin](images/goblin.png "Goblin") Goblin with 15xp
+
+![Skeleton](images/skeleton.png "Skeleton") Skeleton with 8xp
 
 ### External libraries
 

@@ -159,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen>
         maxConcurrentDownloads: 2,
         deleteOnError: true,
         onConnect: (name, address) {
-          snack("$name connected with address: $address");
+          snack("$name connected");
         },
         transferUpdate: (transfer) {},
         onCloseSocket: () {
@@ -183,7 +183,7 @@ class _ChatScreenState extends State<ChatScreen>
         maxConcurrentDownloads: 3,
         deleteOnError: true,
         onConnect: (address) {
-          snack("Connected to socket: $address");
+          snack("Connected to remote device");
         },
         onCloseSocket: () {
           _onCloseSocket(flutterP2pConnectionPlugin);
@@ -201,13 +201,7 @@ class _ChatScreenState extends State<ChatScreen>
             .flutterP2pConnectionPlugin;
 
     bool closed = flutterP2pConnectionPlugin.closeSocket();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Closed: $closed",
-        ),
-      ),
-    );
+    if (closed) snack("Socket closed");
   }
 
   /// Send a message to the connected device
@@ -287,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen>
                                     Navigator.of(context).pop();
                                     bool? bo = await flutterP2pConnectionPlugin
                                         .connect(_peers[index].deviceAddress);
-                                    if (bo) snack("Connected: $bo");
+                                    if (bo) snack("Connecting");
                                   },
                                   child: const Text("Connect"),
                                 ),
