@@ -1,9 +1,13 @@
 # ScanQuest
 
-**ScanQuest** is a treasure hunt game, that collects items by scanning the correspondent NFC tags, receiving a pre-determined number of experience for each item scanned.
+**ScanQuest** is a treasure hunt game for android devices, that collects items by scanning the correspondent NFC tags, receiving a pre-determined number of experience for each item scanned.
 This items can also be exchanged with other users, each player receiving half of the item experience.
 
+Made for the Final Exam of the module Cross Device Interaction during Winter semester in the Technische Hochschule
+Brandenburg.
+
 Authors: [André Ferreira](https://github.com/andr3w10) and [Diogo Correia](https://github.com/drcor)
+
 Date: 29.01.2025
 
 ## Build
