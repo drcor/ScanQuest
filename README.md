@@ -1,20 +1,3 @@
----
-documentclass: article
-papersize: a4
-fontfamily: cantarell
-colorlinks: linkcolor
-lang: en-US
-
-title: 'ScanQuest - General Documentation'
-author:
-- André Ferreira
-- Diogo Correia
-
-output:
-  pdf_document: 
-    latex_engine: pdflatex
----
-
 # ScanQuest
 
 **ScanQuest** is a treasure hunt game for android devices, that collects items by scanning the correspondent NFC tags, receiving a pre-determined number of experience for each item scanned.
